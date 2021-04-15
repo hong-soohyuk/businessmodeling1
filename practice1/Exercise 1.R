@@ -156,18 +156,110 @@ data_b <- data.frame(id = c(6,7,8,9,10), english = c(10,80,30,40,100))
 total_data2 <- bind_rows(data_a, data_b)
 total_data2
 
+View(housing.df)
+t(t(names(housing.df))) ## a good tip for checking out the whole attributes
+colnames(housing.df)[1]
 
+class(housing.df) #data.frame
+class(housing.df$REMODEL) #Character
+class(housing.df[ ,13]) # which is fireplace, its type is integer
+levels(housing.df$TAX) # why is it Null??
+as.factor(housing.df$TAX)
 
+xtotal <- model.matrix(~ 0 + BEDROOMS + REMODEL, data = housing.df) 
 
+xtotal$BEDROOMS[1:5] #xtotal(class : matrix model) doesn't get a proper output
 
-xtotal <- model.matrix(~ 0 + BEDROOMS + REMODEL, data = housing.df)
-
-xtotal$BEDROOMS[1:5]
-#데이터 프레임이 아니라 행렬이라서 작동 안함. 
 xtotal <-as.data.frame(xtotal)
-
+xtotal
 housing.df <- cbind(housing.df[ ,-c[9, 14], xtotal])
 
 rows.to.missing <- sample(row.names(housing.df), 10)
 
 housing.df[rows.to.missing, ]$BEDROOMS <- NA
+
+
+###/////
+#partitioning into training 60%, validation 40%
+#rownames(housing.df) prints 5802 row numbers.
+train.rows <- sample(rownames(housing.df), dim(housing.df)[1]*0.6)
+train.data <- housing.df[train.rows, ]
+# going to use 60% of 5802 records as training partition
+
+
+valid.rows <- setdiff(rownames(housing.df), train.rows)
+
+valid.data <- housing.df[valid.rows, ]
+dim(valid.data)
+
+#partitioning into training 50%, validation 30%, test 20%
+train.rows <- sample(rownames(housing.df), dim(housing.df)[1]*0.5)
+valid.rows <- sample(setdiff(rownames(housing.df), train.rows), dim(housing.df)[1] * 0.3)
+test.rows <- setdiff(rownames(housing.df), union(train.rows, valid.rows))
+
+train.data <- housing.df[train.rows, ]
+valid.data <- housing.df[valid.rows, ]
+test.data <- housing.df[test.rows, ]
+
+###/// linear model
+reg <- lm(TOTAL.VALUE ~ ., data = housing.df, subset = train.rows)
+reg
+tr.res <- data.frame(train.data $TOTAL.VALUE, reg$fitted.values, reg$residuals)
+head(tr.res)
+
+pred <- predict(reg, newdata = valid.data)
+vl.res <- data.frame(valid.data$TOTAL.VALUE, pred, residuals = valid.data $TOTAL.VALUE - pred)
+head(vl.res)                     
+
+# assess accuracy
+install.packages("forecast")
+library(forecast)
+accuracy(pred, valid.data$TOTAL.VALUE)
+
+
+
+# 0415
+mean(df$score) #NOT able to do this if ANY NA exists.
+mean(df$score, na.rm = T)
+
+df$score <- ifelse(is.na(df$score), 4.25, df$score)
+
+outlier <- data.frame(sex = c(1,2,1,3,2,1), score = c(5,4,3,2,7,2))
+# sex value 1 is for male or female, 2 is for male or female. 3 is definitely a outlier.
+
+table(outlier$sex)
+
+outlier$sex <- ifelse(outlier$sex == 3, NA, outlier$sex) #if it is not in {1,2}.
+
+is.na(outlier)
+table(is.na(outlier$sex))
+
+outlier$score <- ifelse(outlier$score > 5, NA, outlier$score)
+outlier$score
+
+
+outlier %>% ##NOTE that you don't use dollar sign, using dplyr chain operation.
+  filter(!is.na(sex) & !is.na(score)) %>%
+  group_by(sex) %>%
+  summarise(avg_score = mean(score))
+
+mpg <- as.data.frame(ggplot2::mpg)
+View(mpg)
+
+
+boxplot(mpg$hwy)
+boxplot(mpg$hwy)$stats # lowest, 1Q, median, 3Q, highest
+
+
+mpg$hwy <- ifelse(mpg$hwy > 37 | mpg$hwy < 12 , NA, mpg$hwy)
+table(is.na(mpg$hwy))
+
+mpg %>%
+  group_by(drv) %>%
+  summarise(avg_hwy = mean(hwy, na.rm = T))
+
+
+# Visualization
+library(ggplot2)
+ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point() # scatter plot
+
