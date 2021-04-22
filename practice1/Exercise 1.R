@@ -260,6 +260,27 @@ mpg %>%
 
 
 # Visualization
+mpg <- as.data.frame(ggplot2::mpg)
 library(ggplot2)
-ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point() # scatter plot
+# scatter plot : geom point
+ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point()
+
+#Bar chart : geom coll
+df_mpg <- mpg %>%
+  group_by(drv) %>%
+  summarise(avg_hwy = mean(hwy))
+df_mpg
+ggplot(data = df_mpg, aes(x = drv, y = avg_hwy)) + geom_col()
+ggplot(data = df_mpg, aes(x = reorder(drv, -avg_hwy), y = avg_hwy)) + geom_col() # reorder(x, avg_hwy | -avg_hwy)
+
+ggplot(data = mpg, aes(x = hwy)) + geom_bar() #hwy value is continuous, it gives binned hwy value.
+
+economics <- as.data.frame(ggplot2::economics)
+View(economics)
+
+ggplot(data = economics, aes(x = date, y=unemploy)) + geom_line() #시결=time series
+
+ggplot(data = mpg, aes(x=drv, y=hwy)) + geom_boxplot()
+# 4륜구동 17마일 22마일 사이에 모여있음, 중위값이 아래쪽에 있는 걸 보니 그 중에서도 낮은 값에 모여있음.
+# 전륜구동 중에서도 극단치가 존재하므로, 전륜이니까 무조건 연비가 좋을것이다 라고 판단할 수 없을 것이다.
 

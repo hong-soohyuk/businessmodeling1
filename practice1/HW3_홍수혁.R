@@ -27,4 +27,4 @@ midwest %>%
   mutate(poptotalasian = (popasian/poptotal)*100) %>%
   select(state, county, poptotalasian) %>%
   arrange(poptotalasian) %>%
-  tail(10)
+  tail(10) ##it should've been head(10)
