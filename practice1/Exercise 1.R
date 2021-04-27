@@ -262,6 +262,7 @@ mpg %>%
 # Visualization
 mpg <- as.data.frame(ggplot2::mpg)
 library(ggplot2)
+
 # scatter plot : geom point
 ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point()
 
@@ -283,4 +284,45 @@ ggplot(data = economics, aes(x = date, y=unemploy)) + geom_line() #시결=time s
 ggplot(data = mpg, aes(x=drv, y=hwy)) + geom_boxplot()
 # 4륜구동 17마일 22마일 사이에 모여있음, 중위값이 아래쪽에 있는 걸 보니 그 중에서도 낮은 값에 모여있음.
 # 전륜구동 중에서도 극단치가 존재하므로, 전륜이니까 무조건 연비가 좋을것이다 라고 판단할 수 없을 것이다.
+
+# 0427
+#line chart for the Amtrack data
+#read.csv is included in the default R package.
+
+#Amtrak_df <- read.csv("datamodeling.csv").
+Amtrak_df <- read.csv("RforBusiness/practice1/Amtrak.csv")
+View(Amtrak_df)
+
+ridership.ts <- ts(Amtrak_df$Ridership, start = c(1991, 1), end = c(2004, 3), freq = 12) #lab = label, ts stands for time series
+ridership.ts
+
+plot(ridership.ts, xlab = "Year", ylab = "Ridership(in 000s)", ylim = c(1300, 2300)) #limit to Y
+class(Amtrak_df[,1])
+
+#scatter plot
+housing_df <- read.csv("RforBusiness/practice1/BostonHousing.csv")
+View(housing_df)
+plot(housing_df$MEDV ~ housing_df$LSTAT, xlab = "MEDV", ylab = "LSTAT")
+
+#alternative plot using ggplot
+
+ggplot(data = mpg, aes(x = displ, y = hwy)) + geom_point()
+
+library(ggplot2)
+ggplot(housing_df) + geom_point(aes(x = LSTAT, y = MEDV), colour = "navy", alpha = 0.7)
+
+#Bar chart of CHAS vs mean MEDV
+
+# compute mean MEDV per CHAS = (0, 1)
+data.for.plot <- aggregate(housing_df$MEDV, by = list(housing_df$CHAS), FUN = mean)
+data.for.plot
+
+names(data.for.plot) <- c("CHAS", "MeanMEDV")
+barplot(data.for.plot$MeanMEDV, names.arg = data.for.plot$CHAS, xlab = "CHAS", ylab = "Avg, MEDV") 
+#names.arg : names the each bars' names. data.for.plot$CHAS consists of 0,1 so its bars names will be 0 and 1.
+
+ggplot(data.for.plot) + geom_bar(aes(x = CHAS, y = MeanMEDV), stat = "identity")
+
+ggplot(data = data.for.plot, aes(x = CHAS, y = MeanMEDV)) + geom_col()
+ggplot(data = data.for.plot, aes(x = CHAS, y = MeanMEDV)) + geom_bar(stat = "identity") #practically they are the same
 
