@@ -7,8 +7,9 @@ c <- "hey"
 c
 
 d<- c(1,2,3,4,5) # d <- c(1 : 5)
+qw<- c(d, 9) # d <- c(1 : 5)
 d
-
+qw
 e <- c(c,"there")
 e <- c(c, 1)
 e
@@ -157,11 +158,15 @@ total_data2 <- bind_rows(data_a, data_b)
 total_data2
 
 View(housing.df)
+names(housing.df)
+t(names(housing.df))
 t(t(names(housing.df))) ## a good tip for checking out the whole attributes
 colnames(housing.df)[1]
 
 class(housing.df) #data.frame
 class(housing.df$REMODEL) #Character
+housing.df$REMODEL <- as.factor(housing.df$REMODEL)
+levels(housing.df$REMODEL)
 class(housing.df[ ,13]) # which is fireplace, its type is integer
 levels(housing.df$TAX) # why is it Null??
 as.factor(housing.df$TAX)
@@ -172,10 +177,12 @@ xtotal$BEDROOMS[1:5] #xtotal(class : matrix model) doesn't get a proper output
 
 xtotal <-as.data.frame(xtotal)
 xtotal
-housing.df <- cbind(housing.df[ ,-c[9, 14], xtotal])
+t(t(names(xtotal)))
+xtotal <- xtotal[, -4]
+housing.df <- cbind(housing.df[, -c(9, 14)], xtotal)
 
 rows.to.missing <- sample(row.names(housing.df), 10)
-
+rows.to.missing
 housing.df[rows.to.missing, ]$BEDROOMS <- NA
 
 
@@ -326,3 +333,22 @@ ggplot(data.for.plot) + geom_bar(aes(x = CHAS, y = MeanMEDV), stat = "identity")
 ggplot(data = data.for.plot, aes(x = CHAS, y = MeanMEDV)) + geom_col()
 ggplot(data = data.for.plot, aes(x = CHAS, y = MeanMEDV)) + geom_bar(stat = "identity") #practically they are the same
 
+
+#0429
+View(housing_df)
+hist(housing_df$MEDV, xlab = "MEDV")
+
+ggplot(housing_df) + geom_histogram(aes(x = MEDV), binwidth = 5)
+ggplot(housing_df) + geom_histogram(aes(x = MEDV), binwidth = 5)
+
+boxplot(housing_df$MEDV ~ housing_df$CHAS, xlab = "CHAS", ylab = "MEDV")
+
+ggplot(housing_df) + geom_boxplot(aes(x = CHAS, y=MEDV)) + xlab("CHAS")
+ggplot(housing_df) + geom_boxplot(aes(x = as.factor(CHAS), y=MEDV)) + xlab("CHAS")
+
+heatmap(cor(housing_df), Rowv = NA, Colv = NA)
+install.packages("gplots")
+library(gplots)
+heatmap.2(cor(housing_df), Rowv = FALSE, Colv = FALSE, dendrogram = "none",
+          cellnote = round(col(housing_df), 2),
+          notecol = "black", key = FALSE, trace = 'none', margins = c(10,10))
